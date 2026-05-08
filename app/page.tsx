@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { ReactNode } from "react";
 
 import Sidebar from "@/components/SideBar";
 import Navbar from "@/components/Navbar";
@@ -16,7 +17,7 @@ export default function Page() {
   const [view, setView] = useState<View>("products");
   const [open, setOpen] = useState(false);
 
-  const views: Record<View, JSX.Element> = {
+  const views: Record<View, ReactNode> = {
     products: <ProductsView />,
     authors: <AuthorsView />,
     users: <UsersView />,
