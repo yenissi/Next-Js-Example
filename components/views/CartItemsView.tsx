@@ -36,7 +36,7 @@ export default function CartView() {
 
   return (
     <div className="relative">
-      <h1 className="text-2xl font-bold mt-9 mb-4">Cart</h1>
+      <h1 className="text-2xl font-bold mt-2 mb-4">Cart</h1>
 
       {/* CART ITEMS */}
       {cart.length === 0 ? (

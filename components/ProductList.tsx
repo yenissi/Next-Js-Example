@@ -48,7 +48,7 @@ export default function ProductList() {
     <div className="fixed inset-0 bg-gray-100 flex justify-center pt-18 overflow-hidden">
       
       {/* MAIN CARD */}
-      <div className="w-full max-w-4xl h-[80vh] bg-white rounded-2xl shadow-xl p-6 flex flex-col">
+      <div className="w-full max-w-4xl h-[80vh] bg-white rounded-2xl shadow-xl p-6 flex flex-col mt-6">
         
         {/* HEADER */}
         <div className="flex items-center justify-between mb-4">
