@@ -4,8 +4,10 @@ import { useEffect, useState } from "react";
 import type { Product } from "@/types/product";
 import { fetchProducts } from "@/services/products-service";
 import { Search } from "lucide-react";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function ProductList() {
+  const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
   const [selected, setSelected] = useState<Product | null>(null);
   const [open, setOpen] = useState(false);
@@ -13,20 +15,25 @@ export default function ProductList() {
 
   useEffect(() => {
     async function load() {
-      const data = await fetchProducts();
-      const sliced = data.slice(0, 8);
-      setProducts(sliced);
+      try {
+        const data = await fetchProducts();
+
+        const sliced = data.slice(0, 8);
+
+        setProducts(sliced);
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+      } finally {
+        setLoading(false);
+      }
     }
 
     load();
   }, []);
 
-  if (!products.length) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center bg-gray-100">
-        <div className="w-10 h-10 border-4 border-t-gray-900 border-gray-300 rounded-full animate-spin"></div>
-      </div>
-    );
+  // LOADING
+  if (loading) {
+    return <LoadingSpinner />;
   }
 
   const openModal = (product: Product) => {
@@ -39,7 +46,7 @@ export default function ProductList() {
     setSelected(null);
   };
 
-  // 🔍 FILTER
+  // FILTER
   const filteredProducts = products.filter((p) =>
     p.title.toLowerCase().includes(search.toLowerCase())
   );
@@ -110,6 +117,7 @@ export default function ProductList() {
 
             <img
               src={selected.images?.[0]}
+              alt={selected.title}
               className="h-56 w-full object-cover rounded-lg mb-4"
             />
 

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { fetchItems } from "@/services/items-service";
 import type { Item } from "@/types/item";
 import { addToCart } from "@/hooks/cart";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 type ItemWithQty = Item & {
   quantity: number;
@@ -13,23 +14,49 @@ export default function ProductsView() {
   const [items, setItems] = useState<ItemWithQty[]>([]);
   const [showSuccess, setShowSuccess] = useState(false);
 
+  const [loading, setLoading] = useState(true);
+
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
     async function load() {
-      const data = await fetchItems();
+      try {
+        const data = await fetchItems();
 
-      // ✅ DEFAULT QUANTITY = 0
-      const withQty = data.map((item) => ({
-        ...item,
-        quantity: 0,
-      }));
+        // DEFAULT QUANTITY = 0
+        const withQty = data.map((item) => ({
+          ...item,
+          quantity: 0,
+        }));
 
-      setItems(withQty);
+        setItems(withQty);
+
+        setError(null);
+      } catch (err) {
+        setError("Failed to load items");
+      } finally {
+        setLoading(false);
+      }
     }
 
     load();
   }, []);
 
-  // ✅ INCREASE
+  // LOADING
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+
+  // ERROR
+  if (error) {
+    return (
+      <p className="text-red-500 text-lg fixed inset-0 flex items-center justify-center">
+        {error}
+      </p>
+    );
+  }
+
+  // INCREASE
   const increaseQty = (id: number) => {
     setItems((prev) =>
       prev.map((item) =>
@@ -40,7 +67,7 @@ export default function ProductsView() {
     );
   };
 
-  // ✅ DECREASE
+  // DECREASE
   const decreaseQty = (id: number) => {
     setItems((prev) =>
       prev.map((item) =>
@@ -51,7 +78,7 @@ export default function ProductsView() {
     );
   };
 
-  // ✅ ADD TO CART
+  // ADD TO CART
   const handleAddToCart = (item: ItemWithQty) => {
     if (item.quantity === 0) return;
 
@@ -60,7 +87,7 @@ export default function ProductsView() {
       quantity: item.quantity,
     });
 
-    // ✅ RESET QUANTITY TO 0
+    // RESET QUANTITY TO 0
     setItems((prev) =>
       prev.map((i) =>
         i.id === item.id
@@ -69,20 +96,13 @@ export default function ProductsView() {
       )
     );
 
+    // SUCCESS POPUP
     setShowSuccess(true);
 
     setTimeout(() => {
       setShowSuccess(false);
     }, 1500);
   };
-
-  if (!items.length) {
-    return (
-      <div className="flex items-center justify-center h-[80vh]">
-        Loading...
-      </div>
-    );
-  }
 
   return (
     <div className="p-5">
@@ -103,6 +123,7 @@ export default function ProductsView() {
             {/* IMAGE */}
             <img
               src={item.image}
+              alt={item.title}
               className="h-40 w-full object-cover"
             />
 
