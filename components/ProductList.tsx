@@ -24,7 +24,7 @@ export default function ProductList() {
   if (!products.length) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-gray-100">
-        <p className="text-lg">Loading...</p>
+        <div className="w-10 h-10 border-4 border-t-gray-900 border-gray-300 rounded-full animate-spin"></div>
       </div>
     );
   }

@@ -16,11 +16,6 @@ export default function Navbar({
         ☰
       </button>
 
-      {/* TITLE */}
-      <h1 className="ml-4 font-bold text-lg">
-        Dashboard
-      </h1>
-
     </div>
   );
 }
