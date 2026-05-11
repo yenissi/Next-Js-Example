@@ -45,5 +45,16 @@ export const videosData: Video[] = [
     views: "15.9M views",
     uploaded: "1y ago"
   },
+  {
+    id: 5,
+    title: "Random Random Again",
+    thumbnail: "video-thumbnails/lv-thumbnail.jpg",
+    url: "https://www.youtube.com/watch?v=D-p_DeJvEqQ",
+    duration: "7:16",
+    channel: "Louis Vuitton",
+    channelAvatar: "channel-logo/lv-logo.png",
+    views: "15.9M views",
+    uploaded: "1y ago"
+  },
   
 ];
