@@ -15,7 +15,7 @@ import VideosView from "@/components/views/VideosView";
 type View = "products" | "authors" | "users" | "items" | "cart" | "videos";
 
 export default function Page() {
-  const [view, setView] = useState<View>("videos"); // 👈 TEMP: set videos to test
+  const [view, setView] = useState<View>("products"); // 👈 TEMP: set products to test
   const [open, setOpen] = useState(false);
 
   const views: Record<View, ReactNode> = {

@@ -54,7 +54,7 @@ export const videosData: Video[] = [
     channel: "Louis Vuitton",
     channelAvatar: "channel-logo/lv-logo.png",
     views: "15.9M views",
-    uploaded: "1y ago"
+    uploaded: "2y ago"
   },
   
 ];
