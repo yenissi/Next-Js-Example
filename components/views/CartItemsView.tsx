@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
 import {
   getCart,
   removeFromCart,
@@ -16,25 +17,50 @@ import {
   PackageCheck,
 } from "lucide-react";
 
+import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+
 export default function CartView() {
   const [cart, setCart] = useState<CartItem[]>([]);
 
-  const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [deleteId, setDeleteId] =
+    useState<number | null>(null);
 
-  const [confirmClear, setConfirmClear] = useState(false);
+  const [confirmClear, setConfirmClear] =
+    useState(false);
+
+  const [showSuccess, setShowSuccess] =
+    useState(false);
 
   useEffect(() => {
     setCart(getCart());
   }, []);
 
+  function showDeleteSuccess() {
+    setShowSuccess(true);
+
+    setTimeout(() => {
+      setShowSuccess(false);
+    }, 1800);
+  }
+
   function handleRemove(id: number) {
     removeFromCart(id);
-    setCart(getCart());
+
+    const updatedCart = getCart();
+
+    setCart(updatedCart);
+
+    if (updatedCart.length === 0) {
+      showDeleteSuccess();
+    }
   }
 
   function handleClear() {
     clearCart();
+
     setCart([]);
+
+    showDeleteSuccess();
   }
 
   const total = cart.reduce(
@@ -45,31 +71,68 @@ export default function CartView() {
   return (
     <div className="min-h-screen bg-gray-100 p-6">
 
+      {/* SUCCESS ANIMATION */}
+      {showSuccess && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+
+          <div className="bg-white rounded-3xl shadow-2xl px-10 py-8 flex flex-col items-center animate-in fade-in zoom-in-95">
+
+            <div className="w-44 h-44">
+              <DotLottieReact
+                src="/animations/checkmark.lottie"
+                loop={false}
+                autoplay
+              />
+            </div>
+
+            <h2 className="text-2xl font-bold -mt-2">
+              Deleted Successfully
+            </h2>
+
+            <p className="text-gray-500 mt-2 text-center">
+              Your cart is now empty
+            </p>
+
+          </div>
+
+        </div>
+      )}
+
       {/* HEADER */}
       <div className="flex items-center gap-3 mb-8">
+
         <div className="bg-black text-white p-3 rounded-2xl">
           <ShoppingCart size={24} />
         </div>
 
         <div>
+
           <h1 className="text-3xl font-bold">
             Shopping Cart
           </h1>
 
           <p className="text-gray-500 text-sm">
-            {cart.length} item{cart.length !== 1 && "s"} in your cart
+            {cart.length} item
+            {cart.length !== 1 && "s"} in your cart
           </p>
+
         </div>
+
       </div>
 
       {/* EMPTY CART */}
-      {cart.length === 0 ? (
+      {cart.length === 0 && !showSuccess ? (
         <div className="flex flex-col items-center justify-center mt-24">
 
           <div className="bg-white shadow-lg rounded-3xl p-10 flex flex-col items-center max-w-sm">
 
             <div className="bg-gray-100 p-5 rounded-full mb-5">
-              <PackageCheck size={50} className="text-gray-400" />
+
+              <PackageCheck
+                size={50}
+                className="text-gray-400"
+              />
+
             </div>
 
             <h2 className="text-2xl font-bold mb-2">
@@ -81,6 +144,7 @@ export default function CartView() {
             </p>
 
           </div>
+
         </div>
       ) : (
         <div className="grid lg:grid-cols-[1fr_320px] gap-6">
@@ -104,6 +168,7 @@ export default function CartView() {
                   />
 
                   <div>
+
                     <h2 className="font-bold text-lg line-clamp-1">
                       {item.title}
                     </h2>
@@ -113,8 +178,12 @@ export default function CartView() {
                     </p>
 
                     <p className="text-green-600 font-bold mt-2">
-                      ₱{(item.price * item.quantity).toFixed(2)}
+                      ₱
+                      {(
+                        item.price * item.quantity
+                      ).toFixed(2)}
                     </p>
+
                   </div>
 
                 </div>
@@ -142,6 +211,7 @@ export default function CartView() {
             <div className="space-y-3 text-sm">
 
               <div className="flex justify-between">
+
                 <span className="text-gray-500">
                   Items
                 </span>
@@ -149,9 +219,11 @@ export default function CartView() {
                 <span>
                   {cart.length}
                 </span>
+
               </div>
 
               <div className="flex justify-between">
+
                 <span className="text-gray-500">
                   Total
                 </span>
@@ -159,13 +231,12 @@ export default function CartView() {
                 <span className="font-bold text-lg">
                   ₱{total.toFixed(2)}
                 </span>
+
               </div>
 
             </div>
 
-            <button
-              className="w-full mt-6 bg-black text-white py-3 rounded-xl font-semibold hover:opacity-90 transition cursor-pointer"
-            >
+            <button className="w-full mt-6 bg-black text-white py-3 rounded-xl font-semibold hover:opacity-90 transition cursor-pointer">
               Checkout
             </button>
 
@@ -228,6 +299,7 @@ export default function CartView() {
             </div>
 
           </div>
+
         </div>
       )}
 
@@ -278,6 +350,7 @@ export default function CartView() {
             </div>
 
           </div>
+
         </div>
       )}
     </div>
