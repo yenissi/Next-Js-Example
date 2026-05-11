@@ -10,11 +10,12 @@ import AuthorsView from "@/components/views/AuthorsView";
 import UsersView from "@/components/views/UsersView";
 import ItemsView from "@/components/views/ItemsView";
 import CartView from "@/components/views/CartItemsView";
+import VideosView from "@/components/views/VideosView";
 
-type View = "products" | "authors" | "users" | "items" | "cart";
+type View = "products" | "authors" | "users" | "items" | "cart" | "videos";
 
 export default function Page() {
-  const [view, setView] = useState<View>("products");
+  const [view, setView] = useState<View>("videos"); // 👈 TEMP: set videos to test
   const [open, setOpen] = useState(false);
 
   const views: Record<View, ReactNode> = {
@@ -23,13 +24,16 @@ export default function Page() {
     users: <UsersView />,
     items: <ItemsView />,
     cart: <CartView />,
+    videos: <VideosView />,
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100">
 
-      {/* NAVBAR */}
-      <Navbar onOpenSidebar={() => setOpen(true)} />
+      {/* NAVBAR (fixed) */}
+      <div className="fixed top-0 left-0 right-0 z-50">
+        <Navbar onOpenSidebar={() => setOpen(true)} />
+      </div>
 
       {/* SIDEBAR */}
       <Sidebar
@@ -39,7 +43,7 @@ export default function Page() {
       />
 
       {/* CONTENT */}
-      <main className="flex-1 p-6 pt-20">
+      <main className="pt-20 p-6">
         {views[view]}
       </main>
 

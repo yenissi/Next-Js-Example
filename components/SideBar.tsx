@@ -7,7 +7,8 @@ type View =
   | "authors"
   | "users"
   | "items"
-  | "cart";
+  | "cart"
+  | "videos";
 
 const menu = [
   { label: "Products", value: "products" },
@@ -15,6 +16,7 @@ const menu = [
   { label: "Users", value: "users" },
   { label: "Items", value: "items" },
   { label: "Cart", value: "cart" },
+  { label: "Videos", value: "videos" },
 ] as const;
 
 export default function Sidebar({
