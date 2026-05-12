@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { fetchUsers } from "@/services/users-service";
 import type { User } from "@/types/user";
-import LoadingSpinner from "@/components/LoadingSpinner";
+import LoadingSkeleton from "@/components/LoadingSkeleton";
 
 export default function UsersView() {
   const [users, setUsers] = useState<User[]>([]);
@@ -16,7 +16,6 @@ export default function UsersView() {
         const data = await fetchUsers();
 
         setUsers(data);
-
         setError(null);
       } catch (err) {
         setError("Failed to load users");
@@ -30,21 +29,21 @@ export default function UsersView() {
 
   // LOADING
   if (loading) {
-    return <LoadingSpinner />;
+    return <LoadingSkeleton type="users" />;
   }
 
   // ERROR
   if (error) {
     return (
-      <p className="text-red-500 text-lg fixed inset-0 flex items-center justify-center">
+      <div className="fixed inset-0 flex items-center justify-center text-red-500 text-lg">
         {error}
-      </p>
+      </div>
     );
   }
 
   return (
     <div className="p-6">
-      
+
       {/* TITLE */}
       <div className="flex items-center justify-center mb-6">
         <h2 className="text-2xl font-bold">Users</h2>
@@ -58,13 +57,11 @@ export default function UsersView() {
             className="p-4 bg-gray-100 rounded-lg shadow-sm hover:bg-gray-200 transition"
           >
             <p className="font-semibold">{u.name}</p>
-
-            <p className="text-gray-600 text-sm">
-              {u.email}
-            </p>
+            <p className="text-gray-600 text-sm">{u.email}</p>
           </li>
         ))}
       </ul>
+
     </div>
   );
 }

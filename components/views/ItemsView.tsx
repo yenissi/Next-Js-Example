@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { fetchItems } from "@/services/items-service";
 import type { Item } from "@/types/item";
 import { addToCart } from "@/hooks/cart";
-import LoadingSpinner from "@/components/LoadingSpinner";
+import LoadingSkeleton from "@/components/LoadingSkeleton";
 
 type ItemWithQty = Item & {
   quantity: number;
@@ -44,7 +44,7 @@ export default function ProductsView() {
 
   // LOADING
   if (loading) {
-    return <LoadingSpinner />;
+    return <LoadingSkeleton type="products" />;
   }
 
   // ERROR

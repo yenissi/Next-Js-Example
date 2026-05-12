@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { fetchVideos } from "@/services/videos-service";
 import type { Video } from "@/types/video";
-import LoadingSpinner from "@/components/LoadingSpinner";
+import LoadingSpinner from "@/components/LoadingSkeleton";
 import { Search } from "lucide-react";
 
 export default function VideosView() {

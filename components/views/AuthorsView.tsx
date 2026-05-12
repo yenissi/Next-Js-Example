@@ -3,22 +3,22 @@
 import { useEffect, useState } from "react";
 import { fetchAuthors } from "@/services/authors-service";
 import type { Author } from "@/types/author";
-import LoadingSpinner from "@/components/LoadingSpinner";
+import LoadingSkeleton from "@/components/LoadingSkeleton";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 export default function AuthorsView() {
   const [authors, setAuthors] = useState<Author[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   useEffect(() => {
     async function loadAuthors() {
       try {
         const data = await fetchAuthors();
-
-        setAuthors(data.slice(0, 5));
-
+        setAuthors(data?.slice(0, 5) ?? []);
         setError(null);
-      } catch (err) {
+      } catch {
         setError("Failed to load authors");
       } finally {
         setLoading(false);
@@ -28,39 +28,67 @@ export default function AuthorsView() {
     loadAuthors();
   }, []);
 
-  // LOADING
-  if (loading) {
-    return <LoadingSpinner />;
-  }
+  const toggle = (index: number) => {
+    setOpenIndex((prev) => (prev === index ? null : index));
+  };
 
-  // ERROR
+  if (loading) return <LoadingSkeleton type="authors" />;
+
   if (error) {
     return (
-      <p className="text-red-500 text-lg fixed inset-0 flex items-center justify-center">
+      <div className="flex items-center justify-center h-[60vh] text-red-500">
         {error}
-      </p>
+      </div>
     );
   }
 
   return (
-    <div className="p-6">
-      
-      {/* TITLE */}
-      <div className="flex items-center justify-center mb-6">
-        <h2 className="text-2xl font-bold">Authors</h2>
-      </div>
+    <div className="max-w-2xl mx-auto p-6">
+      <h2 className="text-2xl font-bold text-center mb-6">Users</h2>
 
-      {/* AUTHORS LIST */}
-      <ul className="space-y-3 max-w-xl mx-auto">
-        {authors.map((a) => (
-          <li
-            key={a.id}
-            className="p-4 bg-gray-100 rounded-lg shadow-sm hover:bg-gray-200 transition"
-          >
-            {a.firstName} {a.lastName}
-          </li>
-        ))}
-      </ul>
+      <div className="space-y-3">
+        {authors.map((author, index) => {
+          const isOpen = openIndex === index;
+
+          return (
+            <div
+              key={author.id}
+              className="bg-white rounded-xl shadow-sm px-5 py-4 transition hover:shadow-md"
+            >
+              {/* HEADER */}
+              <button
+                onClick={() => toggle(index)}
+                className="w-full flex items-start justify-between cursor-pointer text-left"
+              >
+                <div>
+                  <p className="text-base font-semibold text-gray-900">
+                    {author.firstName}
+                  </p>
+                </div>
+
+                <div className="text-gray-500 mt-1">
+                  {isOpen ? (
+                    <ChevronUp size={18} />
+                  ) : (
+                    <ChevronDown size={18} />
+                  )}
+                </div>
+              </button>
+
+              {/* EXPAND CONTENT */}
+              <div
+                className={`overflow-hidden transition-all duration-300 ${
+                  isOpen ? "max-h-20 mt-3" : "max-h-0"
+                }`}
+              >
+                <p className="text-sm text-gray-500">
+                  Last Name: {author.lastName}
+                </p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
