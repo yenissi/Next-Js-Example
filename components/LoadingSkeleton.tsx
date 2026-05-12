@@ -1,6 +1,6 @@
 "use client";
 
-type SkeletonType = "products" | "authors" | "users";
+type SkeletonType = "products" | "authors" | "users" | "videos";
 
 export default function LoadingSkeleton({
   type,
@@ -58,6 +58,48 @@ export default function LoadingSkeleton({
                 <div className="h-3 w-60 bg-gray-300 rounded" />
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {type === "videos" && (
+        <div className="flex justify-center px-4">
+          <div className="w-full max-w-7xl">
+
+            {/* SEARCH SKELETON */}
+            <div className="flex justify-center mb-8">
+              <div className="w-full max-w-xl h-10 bg-gray-200 rounded-full" />
+            </div>
+
+            {/* GRID SKELETON */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="flex flex-col space-y-3">
+
+                  {/* THUMBNAIL */}
+                  <div className="aspect-video w-full bg-gray-200 rounded-xl" />
+
+                  {/* INFO ROW */}
+                  <div className="flex gap-3">
+
+                    {/* CHANNEL AVATAR */}
+                    <div className="w-9 h-9 bg-gray-200 rounded-full flex-shrink-0" />
+
+                    {/* TEXT */}
+                    <div className="flex flex-col space-y-2 flex-1">
+
+                      <div className="h-3 bg-gray-200 rounded w-3/4" />
+                      <div className="h-3 bg-gray-200 rounded w-1/2" />
+
+                      <div className="h-3 bg-gray-200 rounded w-2/3" />
+                    </div>
+                  </div>
+
+                </div>
+              ))}
+
+            </div>
           </div>
         </div>
       )}
