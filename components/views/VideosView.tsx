@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { fetchVideos } from "@/services/videos-service";
 import type { Video } from "@/types/video";
-import LoadingSpinner from "@/components/LoadingSkeleton";
 import { Search } from "lucide-react";
+import LoadingSkeleton from "@/components/LoadingSkeleton";
 
 export default function VideosView() {
   const [videos, setVideos] = useState<Video[]>([]);
@@ -17,7 +17,7 @@ export default function VideosView() {
       try {
         const data = await fetchVideos();
         setVideos(data);
-      } catch (err) {
+      } catch {
         setError("Failed to load videos");
       } finally {
         setLoading(false);
@@ -27,33 +27,33 @@ export default function VideosView() {
     load();
   }, []);
 
-  if (loading) return <LoadingSpinner />;
+  if (loading) return <LoadingSkeleton type="videos" />;
 
   if (error) {
     return (
-      <p className="text-red-500 text-lg fixed inset-0 flex items-center justify-center">
+      <p className="text-red-500 text-lg flex items-center justify-center min-h-screen">
         {error}
       </p>
     );
   }
 
-  const filteredVideos = videos.filter(
-    (video) =>
-      video.title.toLowerCase().includes(search.toLowerCase()) ||
-      video.channel?.toLowerCase().includes(search.toLowerCase())
+  const filteredVideos = videos.filter((video) =>
+    `${video.title} ${video.channel ?? ""}`
+      .toLowerCase()
+      .includes(search.toLowerCase())
   );
 
   return (
-    <div className="flex justify-center">
-      <div className="w-full max-w-8xl">
+    <div className="flex justify-center px-4">
+      <div className="w-full max-w-7xl">
 
-        {/* 🔍 SEARCH BAR */}
+        {/* SEARCH */}
         <div className="flex justify-center mb-8">
-          <div className="relative w-full max-w-xl group">
-
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-black">
-              <Search size={18} />
-            </span>
+          <div className="relative w-full max-w-xl">
+            <Search
+              size={18}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+            />
 
             <input
               type="text"
@@ -66,8 +66,8 @@ export default function VideosView() {
           </div>
         </div>
 
-        {/* 📺 VIDEO GRID (FIXED ALIGNMENT) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
+        {/* GRID */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
 
           {filteredVideos.map((video) => (
             <a
@@ -75,11 +75,11 @@ export default function VideosView() {
               href={video.url}
               target="_blank"
               rel="noreferrer"
-              className="w-full max-w-sm group flex flex-col h-full"
+              className="flex flex-col h-full group"
             >
 
               {/* THUMBNAIL */}
-              <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black">
+              <div className="relative w-full aspect-video overflow-hidden rounded-xl bg-black">
                 <img
                   src={video.thumbnail}
                   alt={video.title}
@@ -94,7 +94,7 @@ export default function VideosView() {
               </div>
 
               {/* INFO */}
-              <div className="flex gap-3 mt-3">
+              <div className="flex gap-3 mt-3 flex-1">
                 <img
                   src={video.channelAvatar}
                   alt={video.channel}
