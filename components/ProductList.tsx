@@ -1,32 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import type { Product } from "@/types/product";
+import { useState, useEffect } from "react";
+import useSWR from "swr";
 import { fetchProducts } from "@/services/products-service";
-import { Search } from "lucide-react";
+import type { Product } from "@/types/product";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
 
-export default function ProductList() {
-  const [loading, setLoading] = useState(true);
+export default function ProductsView() {
   const [products, setProducts] = useState<Product[]>([]);
   const [selected, setSelected] = useState<Product | null>(null);
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const data = await fetchProducts();
-        setProducts(data.slice(0, 8));
-      } catch (error) {
-        console.error("Failed to fetch products:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
+  const { data, error } = useSWR("products", fetchProducts, {
+    revalidateOnFocus: false,
+  });
 
-    load();
-  }, []);
+  // FIX: safely sync SWR data → local state (NO UI CHANGE)
+  useEffect(() => {
+    if (data) {
+      setProducts(data.slice(0, 8));
+    }
+  }, [data]);
 
   const openModal = (product: Product) => {
     setSelected(product);
@@ -42,101 +37,113 @@ export default function ProductList() {
     p.title.toLowerCase().includes(search.toLowerCase())
   );
 
-return (
-  <div className="fixed inset-0 bg-gray-100 flex justify-center pt-18 overflow-hidden">
+  // LOADING FIX (prevents stuck skeleton)
+  if (!data && !error) {
+    return <LoadingSkeleton type="products" />;
+  }
 
-    {/* SKELETON MODE */}
-    {loading ? (
-      <LoadingSkeleton type="products" />
-    ) : (
-      <>
-        {/* MAIN CARD */}
-        <div className="w-full max-w-4xl h-[80vh] bg-white rounded-2xl shadow-xl p-6 flex flex-col mt-6">
+  // ERROR
+  if (error) {
+    const isOnline = typeof navigator !== "undefined" && navigator.onLine;
+    const errorMessage = isOnline 
+      ? "Failed to load products" 
+      : "You are offline. Please check your connection or try again later.";
+    
+    return (
+      <p className="text-red-500 text-lg fixed inset-0 flex items-center justify-center text-center px-4">
+        {errorMessage}
+      </p>
+    );
+  }
 
-          {/* HEADER */}
-          <div className="flex items-center justify-between mb-4">
+  return (
+    <div className="fixed inset-0 bg-gray-100 flex justify-center pt-18 overflow-hidden">
 
-            <h2 className="text-2xl font-bold">Products</h2>
+      {/* MAIN CARD */}
+      <div className="w-full max-w-4xl h-[80vh] bg-white rounded-2xl shadow-xl p-6 flex flex-col mt-6">
 
-            {/* SEARCH */}
-            <div className="relative w-[200px]">
-              <Search className="absolute left-2 top-2.5 w-4 h-4 text-gray-500" />
+        {/* HEADER */}
+        <div className="flex items-center justify-between mb-4">
 
-              <input
-                type="text"
-                placeholder="Search..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-8 pr-3 py-1.5 text-sm border rounded-lg outline-none focus:ring-2 focus:ring-black"
-              />
-            </div>
+          <h2 className="text-2xl font-bold">Products</h2>
+
+          {/* SEARCH */}
+          <div className="relative w-[200px]">
+            <input
+              type="text"
+              placeholder="Search..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full px-3 py-1.5 text-sm border rounded-lg outline-none focus:ring-2 focus:ring-black"
+            />
           </div>
 
-          {/* LIST */}
-          <div className="flex-1 overflow-y-auto space-y-3 pr-2">
+        </div>
 
-            {filteredProducts.length > 0 ? (
-              filteredProducts.map((product) => (
-                <div
-                  key={product.id}
-                  className="flex items-center justify-between p-3 border rounded-lg bg-gray-50 hover:bg-gray-100"
+        {/* LIST */}
+        <div className="flex-1 overflow-y-auto space-y-3 pr-2">
+
+          {filteredProducts.length > 0 ? (
+            filteredProducts.map((product) => (
+              <div
+                key={product.id}
+                className="flex items-center justify-between p-3 border rounded-lg bg-gray-50 hover:bg-gray-100"
+              >
+                <span className="font-medium">{product.title}</span>
+
+                <button
+                  onClick={() => openModal(product)}
+                  className="px-3 py-1 text-sm bg-black text-white rounded cursor-pointer hover:bg-gray-800"
                 >
-                  <span className="font-medium">{product.title}</span>
+                  View
+                </button>
+              </div>
+            ))
+          ) : (
+            <p className="text-center text-gray-500 mt-10">
+              No products found
+            </p>
+          )}
 
-                  <button
-                    onClick={() => openModal(product)}
-                    className="px-3 py-1 text-sm bg-black text-white rounded cursor-pointer hover:bg-gray-800"
-                  >
-                    View
-                  </button>
-                </div>
-              ))
-            ) : (
-              <p className="text-center text-gray-500 mt-10">
-                No products found
-              </p>
-            )}
+        </div>
+
+      </div>
+
+      {/* MODAL (UNCHANGED) */}
+      {open && selected && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
+
+          <div className="bg-white w-[500px] rounded-xl shadow-xl p-8 relative">
+
+            <button
+              onClick={closeModal}
+              className="absolute top-1 right-3 text-xl cursor-pointer"
+            >
+              ✕
+            </button>
+
+            <img
+              src={selected.images?.[0]}
+              alt={selected.title}
+              className="h-56 w-full object-cover rounded-lg mb-4"
+            />
+
+            <h2 className="text-xl font-bold mb-2">
+              {selected.title}
+            </h2>
+
+            <p className="text-gray-600 mb-3">
+              {selected.description}
+            </p>
+
+            <p className="text-lg font-semibold text-green-600">
+              ${selected.price}
+            </p>
 
           </div>
         </div>
-      </>
-    )}
+      )}
 
-    {/* MODAL (always outside skeleton control) */}
-    {open && selected && (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
-
-        <div className="bg-white w-[500px] rounded-xl shadow-xl p-8 relative">
-
-          <button
-            onClick={closeModal}
-            className="absolute top-1 right-3 text-xl cursor-pointer"
-          >
-            ✕
-          </button>
-
-          <img
-            src={selected.images?.[0]}
-            alt={selected.title}
-            className="h-56 w-full object-cover rounded-lg mb-4"
-          />
-
-          <h2 className="text-xl font-bold mb-2">
-            {selected.title}
-          </h2>
-
-          <p className="text-gray-600 mb-3">
-            {selected.description}
-          </p>
-
-          <p className="text-lg font-semibold text-green-600">
-            ${selected.price}
-          </p>
-
-        </div>
-      </div>
-    )}
-
-  </div>
-);
+    </div>
+  );
 }

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import useSWR from "swr";
 import { fetchItems } from "@/services/items-service";
 import type { Item } from "@/types/item";
 import { addToCart } from "@/hooks/cart";
@@ -11,47 +12,42 @@ type ItemWithQty = Item & {
 };
 
 export default function ProductsView() {
-  const [items, setItems] = useState<ItemWithQty[]>([]);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  const [loading, setLoading] = useState(true);
+  const { data, error } = useSWR("items", fetchItems, {
+    revalidateOnFocus: false,
+  });
 
-  const [error, setError] = useState<string | null>(null);
+  // LOCAL STATE for quantity (THIS is what we control)
+  const [items, setItems] = useState<ItemWithQty[]>([]);
 
+  // FIX: safely sync SWR data → local state (NO UI CHANGE)
   useEffect(() => {
-    async function load() {
-      try {
-        const data = await fetchItems();
-
-        // DEFAULT QUANTITY = 0
-        const withQty = data.map((item) => ({
+    if (data) {
+      setItems(
+        data.map((item: Item) => ({
           ...item,
           quantity: 0,
-        }));
-
-        setItems(withQty);
-
-        setError(null);
-      } catch (err) {
-        setError("Failed to load items");
-      } finally {
-        setLoading(false);
-      }
+        }))
+      );
     }
+  }, [data]);
 
-    load();
-  }, []);
-
-  // LOADING
-  if (loading) {
+  // LOADING FIX (prevents stuck skeleton)
+  if (!data && !error) {
     return <LoadingSkeleton type="products" />;
   }
 
   // ERROR
   if (error) {
+    const isOnline = typeof navigator !== "undefined" && navigator.onLine;
+    const errorMessage = isOnline 
+      ? "Failed to load items" 
+      : "You are offline. Please check your connection or try again later.";
+    
     return (
-      <p className="text-red-500 text-lg fixed inset-0 flex items-center justify-center">
-        {error}
+      <p className="text-red-500 text-lg fixed inset-0 flex items-center justify-center text-center px-4">
+        {errorMessage}
       </p>
     );
   }
@@ -87,7 +83,7 @@ export default function ProductsView() {
       quantity: item.quantity,
     });
 
-    // RESET QUANTITY TO 0
+    // reset quantity safely
     setItems((prev) =>
       prev.map((i) =>
         i.id === item.id
@@ -96,7 +92,6 @@ export default function ProductsView() {
       )
     );
 
-    // SUCCESS POPUP
     setShowSuccess(true);
 
     setTimeout(() => {
@@ -120,14 +115,12 @@ export default function ProductsView() {
             className="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden flex flex-col"
           >
 
-            {/* IMAGE */}
             <img
               src={item.image}
               alt={item.title}
               className="h-40 w-full object-cover"
             />
 
-            {/* CONTENT */}
             <div className="p-3 flex flex-col flex-1">
 
               <h3 className="font-semibold text-sm line-clamp-2">
@@ -138,7 +131,6 @@ export default function ProductsView() {
                 ₱{item.price}
               </p>
 
-              {/* QUANTITY */}
               <div className="flex items-center justify-between mt-3">
 
                 <button
@@ -161,7 +153,6 @@ export default function ProductsView() {
 
               </div>
 
-              {/* ADD TO CART */}
               <button
                 onClick={() => handleAddToCart(item)}
                 disabled={item.quantity === 0}
