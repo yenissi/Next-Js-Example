@@ -6,8 +6,7 @@ type View =
   | "users"
   | "items"
   | "cart"
-  | "videos"
-  | "portfolio";
+  | "videos";
 
 const menu: {
   label: string;
@@ -19,7 +18,6 @@ const menu: {
   { label: "Items", value: "items" },
   { label: "Cart", value: "cart" },
   { label: "Videos", value: "videos" },
-  { label: "Portfolio", value: "portfolio" },
 ];
 
 export default function Sidebar({

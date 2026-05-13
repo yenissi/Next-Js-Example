@@ -11,7 +11,6 @@ import UsersView from "@/components/views/UsersView";
 import ItemsView from "@/components/views/ItemsView";
 import CartView from "@/components/views/CartItemsView";
 import VideosView from "@/components/views/VideosView";
-import PortfolioView from "@/components/views/PorfolioView";
 
 type View =
   | "products"
@@ -19,8 +18,7 @@ type View =
   | "users"
   | "items"
   | "cart"
-  | "videos"
-  | "portfolio";
+  | "videos";
 
 export default function Page() {
   const [view, setView] = useState<View>("products");
@@ -58,8 +56,6 @@ export default function Page() {
         return <CartView />;
       case "videos":
         return <VideosView />;
-      case "portfolio":
-        return <PortfolioView />;
       default:
         return <ProductsView />;
     }
