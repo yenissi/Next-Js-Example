@@ -1,23 +1,26 @@
 "use client";
 
-import { useState } from "react";
-
 type View =
   | "products"
   | "authors"
   | "users"
   | "items"
   | "cart"
-  | "videos";
+  | "videos"
+  | "portfolio";
 
-const menu = [
+const menu: {
+  label: string;
+  value: View;
+}[] = [
   { label: "Products", value: "products" },
   { label: "Authors", value: "authors" },
   { label: "Users", value: "users" },
   { label: "Items", value: "items" },
   { label: "Cart", value: "cart" },
   { label: "Videos", value: "videos" },
-] as const;
+  { label: "Portfolio", value: "portfolio" },
+];
 
 export default function Sidebar({
   setView,
@@ -53,7 +56,7 @@ export default function Sidebar({
 
           <button
             onClick={() => setOpen(false)}
-            className="text-2xl cursor-pointer hover:text-gray-300"
+            className="text-2xl hover:text-gray-300 cursor-pointer"
           >
             ✕
           </button>
