@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import Sidebar from "@/components/SideBar";
 import Navbar from "@/components/Navbar";
@@ -12,15 +12,34 @@ import ItemsView from "@/components/views/ItemsView";
 import CartView from "@/components/views/CartItemsView";
 import VideosView from "@/components/views/VideosView";
 
-type View = "products" | "authors" | "users" | "items" | "cart" | "videos";
+type View =
+  | "products"
+  | "authors"
+  | "users"
+  | "items"
+  | "cart"
+  | "videos";
 
 export default function Page() {
   const [view, setView] = useState<View>("products");
+  const [hydrated, setHydrated] = useState(false);
   const [open, setOpen] = useState(false);
+
+  // run ONLY on client after mount
+  useEffect(() => {
+    const savedView = localStorage.getItem("activeView") as View | null;
+
+    if (savedView) {
+      setView(savedView);
+    }
+
+    setHydrated(true);
+  }, []);
 
   const handleViewChange = (v: View) => {
     setView(v);
-    setOpen(false); // close sidebar after navigation
+    localStorage.setItem("activeView", v);
+    setOpen(false);
   };
 
   const renderView = () => {
@@ -44,7 +63,6 @@ export default function Page() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex">
-
       {/* SIDEBAR */}
       <Sidebar
         setView={handleViewChange}
@@ -52,19 +70,16 @@ export default function Page() {
         setOpen={setOpen}
       />
 
-      {/* MAIN AREA */}
       <div className="flex-1 flex flex-col">
-
-        {/* NAVBAR */}
+        {/* NAVBAR always visible */}
         <div className="fixed top-0 left-0 right-0 z-50">
-          <Navbar onOpenSidebar={() => setOpen(true)} />
+          <Navbar onOpenSidebar={() => setOpen((p) => !p)} />
         </div>
 
         {/* CONTENT */}
         <main className="pt-20 p-6">
-          {renderView()}
+          {hydrated ? renderView() : null}
         </main>
-
       </div>
     </div>
   );
