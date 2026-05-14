@@ -113,7 +113,7 @@ export default function ProductsView() {
                 <div className="flex items-center justify-between mt-3">
                   <button
                     onClick={() => decreaseQty(item.id)}
-                    className="px-4 py-1 bg-gray-200 rounded"
+                    className="px-4 py-1 bg-gray-200 rounded cursor-pointer"
                   >
                     -
                   </button>
@@ -124,7 +124,7 @@ export default function ProductsView() {
 
                   <button
                     onClick={() => increaseQty(item.id)}
-                    className="px-4 py-1 bg-gray-200 rounded"
+                    className="px-4 py-1 bg-gray-200 rounded cursor-pointer"
                   >
                     +
                   </button>
@@ -137,7 +137,7 @@ export default function ProductsView() {
                     ${
                       item.quantity === 0
                         ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                        : "bg-green-600 text-white hover:bg-green-700"
+                        : "bg-green-600 text-white hover:bg-green-700 cursor-pointer"
                     }
                   `}
                 >
