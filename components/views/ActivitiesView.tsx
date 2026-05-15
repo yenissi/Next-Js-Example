@@ -124,7 +124,7 @@ export default function ActivitiesView() {
             )
           }
           disabled={currentPage === 1}
-          className="rounded-lg border px-4 py-2 text-sm disabled:opacity-50"
+          className="rounded-lg border px-4 py-2 text-sm  cursor-pointer disabled:opacity-50"
         >
           Previous
         </button>
@@ -142,7 +142,7 @@ export default function ActivitiesView() {
             )
           }
           disabled={currentPage === totalPages}
-          className="rounded-lg border px-4 py-2 text-sm disabled:opacity-50"
+          className="rounded-lg border px-4 py-2 text-sm cursor-pointer disabled:opacity-50"
         >
           Next
         </button>
