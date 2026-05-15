@@ -1,6 +1,6 @@
 "use client";
 
-type SkeletonType = "products" | "authors" | "users" | "videos";
+type SkeletonType = "products" | "authors" | "activities" | "videos";
 
 export default function LoadingSkeleton({
   type,
@@ -48,7 +48,7 @@ export default function LoadingSkeleton({
         </div>
       )}
 
-      {type === "users" && (
+      {type === "activities" && (
         <div className="p-6">
           <div className="h-8 w-40 bg-gray-300 rounded mx-auto mb-6" />
           <div className="space-y-3 max-w-2xl mx-auto">

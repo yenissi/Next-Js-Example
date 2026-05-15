@@ -3,7 +3,7 @@
 type View =
   | "products"
   | "authors"
-  | "users"
+  | "activities"
   | "items"
   | "cart"
   | "videos";
@@ -14,7 +14,7 @@ const menu: {
 }[] = [
   { label: "Products", value: "products" },
   { label: "Authors", value: "authors" },
-  { label: "Users", value: "users" },
+  { label: "Activities", value: "activities" },
   { label: "Items", value: "items" },
   { label: "Cart", value: "cart" },
   { label: "Videos", value: "videos" },

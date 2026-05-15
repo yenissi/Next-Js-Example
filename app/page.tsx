@@ -7,7 +7,7 @@ import Navbar from "@/components/Navbar";
 
 import ProductsView from "@/components/views/ProductsView";
 import AuthorsView from "@/components/views/AuthorsView";
-import UsersView from "@/components/views/UsersView";
+import ActivitiesView from "@/components/views/ActivitiesView";
 import ItemsView from "@/components/views/ItemsView";
 import CartView from "@/components/views/CartItemsView";
 import VideosView from "@/components/views/VideosView";
@@ -15,7 +15,7 @@ import VideosView from "@/components/views/VideosView";
 type View =
   | "products"
   | "authors"
-  | "users"
+  | "activities"
   | "items"
   | "cart"
   | "videos";
@@ -48,8 +48,8 @@ export default function Page() {
         return <ProductsView />;
       case "authors":
         return <AuthorsView />;
-      case "users":
-        return <UsersView />;
+      case "activities":
+        return <ActivitiesView />;
       case "items":
         return <ItemsView />;
       case "cart":
