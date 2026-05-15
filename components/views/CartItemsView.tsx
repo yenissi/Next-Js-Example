@@ -31,11 +31,16 @@ export default function CartView() {
   const [showSuccess, setShowSuccess] =
     useState(false);
 
+  const [animationKey, setAnimationKey] =
+    useState(0);
+
   useEffect(() => {
     setCart(getCart());
   }, []);
 
   function showDeleteSuccess() {
+    setAnimationKey(Date.now());
+
     setShowSuccess(true);
 
     setTimeout(() => {
@@ -79,9 +84,13 @@ export default function CartView() {
 
             <div className="w-44 h-44">
               <DotLottieReact
+                key={animationKey}
                 src="/animations/checkmark.lottie"
                 loop={false}
                 autoplay
+                renderConfig={{
+                  autoResize: true,
+                }}
               />
             </div>
 
