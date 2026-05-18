@@ -8,20 +8,26 @@ import { toast } from "sonner";
 
 const STORAGE_KEY = "broadcast_events";
 
-/* ✅ format */
+/* ✅ FORMAT DATE */
 function formatDateTime(dateString: string) {
   const date = new Date(dateString);
 
-  return date
-    .toLocaleString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "2-digit",
-      hour: "numeric",
-      minute: "2-digit",
-    })
-    .replace(",", " at");
+  const weekday = date.toLocaleDateString("en-US", {
+    weekday: "long",
+  });
+
+  const fullDate = date.toLocaleDateString("en-US", {
+    month: "long",
+    day: "2-digit",
+    year: "numeric",
+  });
+
+  const time = date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+
+  return `${weekday}, ${fullDate} at ${time}`;
 }
 
 export default function BroadcastView() {
@@ -41,40 +47,52 @@ export default function BroadcastView() {
   const [events, setEvents] = useState<any[]>([]);
 
   // =========================
-  // LOAD EVENTS ON MOUNT
+  // LOAD EVENTS
   // =========================
   useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    const stored = JSON.parse(
+      localStorage.getItem(STORAGE_KEY) || "[]"
+    );
+
     setEvents(stored);
   }, []);
 
   // =========================
-  // AUTO CHECK SCHEDULED EVENTS
+  // AUTO CHECK EVENTS
   // =========================
   useEffect(() => {
     const interval = setInterval(() => {
-      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      const stored = JSON.parse(
+        localStorage.getItem(STORAGE_KEY) || "[]"
+      );
 
       const now = new Date().getTime();
 
       const updated = stored.map((event: any) => {
         const eventTime = new Date(event.schedule).getTime();
 
-        // ✅ if time reached AND not triggered yet
+        // ✅ SHOW TOAST WHEN TIME REACHED
         if (!event.triggered && now >= eventTime) {
           toast("📢 Scheduled Broadcast", {
             description: `${event.title} - ${event.message}`,
           });
 
-          return { ...event, triggered: true };
+          return {
+            ...event,
+            triggered: true,
+          };
         }
 
         return event;
       });
 
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(updated)
+      );
+
       setEvents(updated);
-    }, 5000); // check every 5 seconds
+    }, 5000);
 
     return () => clearInterval(interval);
   }, []);
@@ -86,9 +104,8 @@ export default function BroadcastView() {
     const missing: string[] = [];
 
     if (!broadcast.title) missing.push("title");
-    if (!broadcast.message) missing.push("message");
-    if (!broadcast.scheduleDate) missing.push("date");
-    if (!broadcast.scheduleTime) missing.push("time");
+    if (!broadcast.message) missing.push("schedule");
+    if (!broadcast.scheduleDate) missing.push("date & time");
 
     if (missing.length > 0) {
       toast.error("Missing fields", {
@@ -108,7 +125,7 @@ export default function BroadcastView() {
           title: broadcast.title,
           message: broadcast.message,
           schedule: combinedDateTime.toISOString(),
-          triggered: false, // ✅ IMPORTANT
+          triggered: false,
           createdAt: new Date().toISOString(),
         };
 
@@ -118,13 +135,18 @@ export default function BroadcastView() {
 
         const updated = [...existing, newEvent];
 
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify(updated)
+        );
+
         setEvents(updated);
 
         toast("Broadcast scheduled", {
           description: formatDateTime(newEvent.schedule),
         });
 
+        // RESET
         setBroadcast({
           title: "",
           message: "",
@@ -138,112 +160,167 @@ export default function BroadcastView() {
     });
   };
 
-return (
-  <div className="fixed inset-0 mt-13 p-4 flex bg-gray-50 gap-6 overflow-hidden">
+  return (
+    <div className="fixed inset-0 mt-13 p-4 flex bg-gray-50 gap-6 overflow-hidden">
 
-    {/* ================= LEFT: FORM ================= */}
-    <div className="w-1/2 bg-white rounded-xl shadow-lg border border-gray-100 p-8">
+      {/* ================= LEFT ================= */}
+      <div className="w-1/2 bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
 
-      {/* HEADER */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">
-          Broadcast
-        </h1>
-        <p className="text-gray-500 mt-2">
-          Send announcements and scheduled messages.
-        </p>
-      </div>
+        {/* HEADER */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">
+            Broadcast
+          </h1>
 
-      {/* TITLE */}
-      <input
-        className="w-full mb-4 border border-gray-300 p-3 rounded-xl"
-        value={broadcast.title}
-        onChange={(e) =>
-          setBroadcast({ ...broadcast, title: e.target.value })
-        }
-        placeholder="Title"
-      />
-
-      {/* MESSAGE */}
-      <textarea
-        className="w-full mb-4 border border-gray-300 p-3 rounded-xl"
-        value={broadcast.message}
-        onChange={(e) =>
-          setBroadcast({ ...broadcast, message: e.target.value })
-        }
-        placeholder="Message"
-        rows={6}
-      />
-
-      {/* DATE + TIME */}
-      <div className="flex gap-4 mb-6">
-        <input
-          type="date"
-          value={broadcast.scheduleDate}
-          onChange={(e) =>
-            setBroadcast({
-              ...broadcast,
-              scheduleDate: e.target.value,
-            })
-          }
-          className="w-1/2 border border-gray-300 p-3 rounded-xl"
-        />
-
-        <input
-          type="time"
-          value={broadcast.scheduleTime}
-          onChange={(e) =>
-            setBroadcast({
-              ...broadcast,
-              scheduleTime: e.target.value,
-            })
-          }
-          className="w-1/2 border border-gray-300 p-3 rounded-xl"
-        />
-      </div>
-
-      <Button onClick={handleSend}>
-        Send Now
-      </Button>
-    </div>
-
-    {/* ================= RIGHT: EVENTS ================= */}
-    <div className="w-1/2 bg-white rounded-xl shadow-lg border border-gray-100 p-8 flex flex-col">
-
-      <h2 className="text-xl font-bold mb-4">
-        Scheduled Events
-      </h2>
-
-      <div className="flex-1 overflow-y-auto space-y-3 pr-2">
-
-        {events.length === 0 ? (
-          <p className="text-gray-500">
-            No scheduled events yet.
+          <p className="text-gray-500 mt-2">
+            Send announcements and scheduled messages.
           </p>
-        ) : (
-          events.map((e, i) => (
-            <div
-              key={i}
-              className="border border-gray-200 rounded-xl p-4 bg-gray-50"
-            >
-              <div className="font-semibold text-gray-900">
-                {e.title}
-              </div>
+        </div>
 
-              <div className="text-sm text-gray-600">
-                {e.message}
-              </div>
+        {/* TITLE */}
+        <div className="mb-5">
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Title
+          </label>
 
-              <div className="text-xs text-gray-500 mt-2">
-                {formatDateTime(e.schedule)}
-              </div>
-            </div>
-          ))
-        )}
+          <input
+            value={broadcast.title}
+            onChange={(e) =>
+              setBroadcast({
+                ...broadcast,
+                title: e.target.value,
+              })
+            }
+            placeholder="Enter title..."
+            className="w-full border border-gray-300 bg-gray-50 p-3 rounded-2xl focus:ring-2 focus:ring-black outline-none transition"
+          />
+        </div>
 
+        {/* MESSAGE */}
+        <div className="mb-5">
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Message
+          </label>
+
+          <textarea
+            value={broadcast.message}
+            onChange={(e) =>
+              setBroadcast({
+                ...broadcast,
+                message: e.target.value,
+              })
+            }
+            placeholder="Write your message..."
+            rows={7}
+            className="w-full border border-gray-300 bg-gray-50 p-3 rounded-2xl focus:ring-2 focus:ring-black outline-none transition resize-none"
+          />
+        </div>
+
+        {/* DATETIME */}
+        <div className="mb-6">
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Schedule
+          </label>
+
+          <input
+            type="datetime-local"
+            value={
+              broadcast.scheduleDate &&
+              broadcast.scheduleTime
+                ? `${broadcast.scheduleDate}T${broadcast.scheduleTime}`
+                : ""
+            }
+            onChange={(e) => {
+              const value = e.target.value;
+
+              const [date, time] = value.split("T");
+
+              setBroadcast({
+                ...broadcast,
+                scheduleDate: date,
+                scheduleTime: time,
+              });
+            }}
+            className="w-full border border-gray-300 bg-gray-50 p-3 rounded-2xl focus:ring-2 focus:ring-black outline-none transition"
+          />
+        </div>
+
+        {/* BUTTON */}
+        <Button onClick={handleSend}>
+          Send Now
+        </Button>
       </div>
-    </div>
 
-  </div>
-);
+      {/* ================= RIGHT ================= */}
+      <div className="w-1/2 bg-white rounded-2xl shadow-lg border border-gray-100 p-8 flex flex-col">
+
+        {/* HEADER */}
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-gray-900">
+            Scheduled Events
+          </h2>
+
+          <div className="text-sm text-gray-500">
+            {events.length} Events
+          </div>
+        </div>
+
+        {/* EVENTS */}
+        <div className="flex-1 overflow-y-auto space-y-4 pr-2">
+
+          {events.length === 0 ? (
+            <div className="h-full flex items-center justify-center text-gray-400">
+              No scheduled events yet.
+            </div>
+          ) : (
+            [...events]
+              .sort(
+                (a, b) =>
+                  new Date(b.schedule).getTime() -
+                  new Date(a.schedule).getTime()
+              )
+              .map((e, i) => (
+                <div
+                  key={i}
+                  className="border border-gray-200 rounded-2xl p-5 bg-gray-50 shadow-sm"
+                >
+
+                  {/* TOP */}
+                  <div className="flex items-start justify-between">
+
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-900 text-lg">
+                        {e.title}
+                      </h3>
+
+                      <p className="text-sm text-gray-600 mt-1">
+                        {e.message}
+                      </p>
+                    </div>
+
+                    {/* STATUS */}
+                    <div
+                      className={`text-xs font-semibold px-3 py-1 rounded-full ml-4 ${
+                        e.triggered
+                          ? "bg-green-100 text-green-700"
+                          : "bg-yellow-100 text-yellow-700"
+                      }`}
+                    >
+                      {e.triggered ? "Sent" : "Pending"}
+                    </div>
+                  </div>
+
+                  {/* DATE */}
+                  <div className="mt-4 border-t pt-3 text-sm text-gray-500">
+                    {formatDateTime(e.schedule)}
+                  </div>
+                </div>
+              ))
+          )}
+
+        </div>
+      </div>
+
+    </div>
+  );
 }
