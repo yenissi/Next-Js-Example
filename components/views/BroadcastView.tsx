@@ -144,6 +144,30 @@ export default function BroadcastView() {
 
         toast("Broadcast scheduled", {
           description: formatDateTime(newEvent.schedule),
+
+          action: {
+            label: "Undo",
+
+            onClick: () => {
+              const stored = JSON.parse(
+                localStorage.getItem(STORAGE_KEY) || "[]"
+              );
+
+              const updated = stored.filter(
+                (event: any) =>
+                  event.createdAt !== newEvent.createdAt
+              );
+
+              localStorage.setItem(
+                STORAGE_KEY,
+                JSON.stringify(updated)
+              );
+
+              setEvents(updated);
+
+              toast.success("Broadcast removed");
+            },
+          },
         });
 
         // RESET
