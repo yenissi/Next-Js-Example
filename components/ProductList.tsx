@@ -5,6 +5,7 @@ import useSWR from "swr";
 import { fetchProducts } from "@/services/products-service";
 import type { Product } from "@/types/product";
 import LoadingSkeleton from "@/components/LoadingSkeleton";
+import { GooeyInput } from "@/components/ui/gooey-input";
 
 export default function ProductsView() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -67,16 +68,19 @@ export default function ProductsView() {
 
           <h2 className="text-2xl font-bold">Products</h2>
 
-          {/* SEARCH */}
-          <div className="relative w-[200px]">
-            <input
-              type="text"
-              placeholder="Search..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full px-3 py-1.5 text-sm border rounded-lg outline-none focus:ring-2 focus:ring-black"
-            />
-          </div>
+          {/* SEARCH (RIGHT SIDE) */}
+                  <div className="flex justify-end mb-8">
+                    <div className="w-full max-w-md">
+          
+                      <GooeyInput
+                        placeholder="Search videos..."
+                        defaultValue={search}
+                        onValueChange={setSearch}
+                        className="w-full"
+                      />
+          
+                    </div>
+                  </div>
 
         </div>
 
