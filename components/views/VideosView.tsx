@@ -55,7 +55,7 @@ export default function VideosView() {
               placeholder="Search videos..."
               defaultValue={search}
               onValueChange={setSearch}
-              className="w-full"
+              className="w-full justify-end"
             />
 
           </div>
