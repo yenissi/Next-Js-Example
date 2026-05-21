@@ -195,7 +195,7 @@ export default function ProductsView() {
                       onClick={closeCard}
                       className="cursor-pointer p-2 rounded-full hover:bg-gray-100 transition"
                       >
-                        
+
                         <X />
                     </button>
 
@@ -209,7 +209,7 @@ export default function ProductsView() {
                     layoutId={`button-${active.id}`}
                     className="mt-6 px-5 py-2 rounded-full bg-black text-white font-medium cursor-pointer"
                   >
-                    View Product
+                    Buy Product
                   </motion.button>
 
                 </div>

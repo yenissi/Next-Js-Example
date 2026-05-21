@@ -353,7 +353,7 @@ export default function CartView() {
                 }}
                 className="flex-1 bg-red-500 text-white py-3 rounded-xl hover:bg-red-600 transition cursor-pointer"
               >
-                Clear
+                Clear Cart
               </button>
 
             </div>
