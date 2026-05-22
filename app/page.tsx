@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import Sidebar from "@/components/SideBar";
 import Navbar from "@/components/Navbar";
@@ -23,20 +24,42 @@ type View =
   | "broadcast";
 
 export default function Page() {
+  const router = useRouter();
   const [view, setView] = useState<View>("products");
   const [hydrated, setHydrated] = useState(false);
   const [open, setOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // run ONLY on client after mount
   useEffect(() => {
+    const checkLoginStatus = () => {
+      const currentUser = localStorage.getItem("currentUser");
+      setIsLoggedIn(!!currentUser);
+    };
+
     const savedView = localStorage.getItem("activeView") as View | null;
+    const currentUser = localStorage.getItem("currentUser");
 
     if (savedView) {
       setView(savedView);
     }
 
+    if (currentUser) {
+      setIsLoggedIn(true);
+    } else {
+      // Redirect to login if not logged in
+      router.push("/login");
+    }
+
     setHydrated(true);
-  }, []);
+
+    // Listen for custom logout event
+    window.addEventListener("logout", checkLoginStatus);
+    
+    return () => {
+      window.removeEventListener("logout", checkLoginStatus);
+    };
+  }, [router]);
 
   const handleViewChange = (v: View) => {
     setView(v);
@@ -66,25 +89,30 @@ export default function Page() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex">
-      {/* SIDEBAR */}
-      <Sidebar
-        setView={handleViewChange}
-        open={open}
-        setOpen={setOpen}
-      />
+    <>
+      {!hydrated || !isLoggedIn ? null : (
+        // MAIN APP - LOGGED IN
+        <div className="min-h-screen bg-gray-100 flex">
+          {/* SIDEBAR */}
+          <Sidebar
+            setView={handleViewChange}
+            open={open}
+            setOpen={setOpen}
+          />
 
-      <div className="flex-1 flex flex-col">
-        {/* NAVBAR always visible */}
-        <div className="fixed top-0 left-0 right-0 z-50">
-          <Navbar onOpenSidebar={() => setOpen((p) => !p)} />
+          <div className="flex-1 flex flex-col">
+            {/* NAVBAR always visible */}
+            <div className="fixed top-0 left-0 right-0 z-50">
+              <Navbar onOpenSidebar={() => setOpen((p) => !p)} />
+            </div>
+
+            {/* CONTENT */}
+            <main className="pt-20 p-6">
+              {hydrated ? renderView() : null}
+            </main>
+          </div>
         </div>
-
-        {/* CONTENT */}
-        <main className="pt-20 p-6">
-          {hydrated ? renderView() : null}
-        </main>
-      </div>
-    </div>
+      )}
+    </>
   );
 }
